@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glance: inbox zero on your glasses</title>
+<meta name="description" content="Glance shows the few emails that need you, one per screen on Even G2 smart glasses, with a reply already written. Tap to send, or say what to change.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Glance: inbox zero on your glasses">
+<meta property="og:description" content="The few emails that need you, one per screen, with a reply already written. Tap to send, or say what to change.">
+<meta property="og:image" content="https://hajrajadoon.github.io/glance-g2/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=DotGothic16&display=swap" rel="stylesheet">
+<style>
+:root {
+  --glass: #E7EEEB;
+  --panel: #F5F9F7;
+  --ink: #0F1B16;
+  --ink-2: #3B4B43;
+  --line: #B9C7C0;
+  --screen: #050B07;
+  --phosphor: #6BFF8A;
+  --signal: #0B6B3A;
+  --lens: 26px 22px 46px 56px;
+  --max: 1120px;
+  --gut: clamp(16px, 4vw, 32px);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 16px; }
+body {
+  margin: 0;
+  background: var(--glass);
+  color: var(--ink);
+  font-family: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--signal); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--signal); outline-offset: 3px; border-radius: 4px; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gut); }
+h1, h2, h3 { line-height: 1.08; letter-spacing: -0.02em; margin: 0; font-weight: 700; }
+h1 { font-size: clamp(3.1rem, 9vw, 6.4rem); font-weight: 800; font-stretch: 78%; letter-spacing: -0.035em; line-height: .95; }
+h2 { font-size: clamp(1.9rem, 4.4vw, 3rem); font-stretch: 86%; }
+h3 { font-size: 1.25rem; letter-spacing: -0.01em; line-height: 1.2; }
+p { margin: 0; }
+.lede { font-size: clamp(1.15rem, 2vw, 1.35rem); line-height: 1.5; color: var(--ink-2); max-width: 36ch; }
+.prose { max-width: 62ch; color: var(--ink-2); }
+
+/* Header */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 20px; padding-bottom: 20px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-weight: 800; font-size: 1.45rem; letter-spacing: -0.03em; font-stretch: 85%; }
+.brand img { width: 38px; height: 38px; display: block; }
+.nav { display: flex; align-items: center; gap: clamp(14px, 2.4vw, 28px); }
+.nav a { color: var(--ink); text-decoration: none; font-weight: 500; }
+.nav a:hover { text-decoration: underline; text-underline-offset: 5px; }
+.nav .btn { color: var(--signal-ink, #fff); }
+@media (max-width: 760px) { .nav a:not(.btn) { display: none; } }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 46px; padding: 0 22px; border-radius: 999px;
+  border: 2px solid var(--ink); background: transparent; color: var(--ink);
+  font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
+}
+.btn:hover { background: var(--ink); color: var(--panel); }
+.btn.primary { background: var(--signal); border-color: var(--signal); color: #fff; }
+.btn.primary:hover { background: var(--ink); border-color: var(--ink); }
+.nav .btn { min-height: 40px; padding: 0 18px; }
+
+/* Hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr); gap: 44px; padding-top: clamp(24px, 6vw, 72px); padding-bottom: clamp(56px, 9vw, 112px); align-items: center; }
+@media (min-width: 900px) { .hero { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 56px; } }
+.hero-copy { display: grid; gap: 26px; justify-items: start; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.fine { font-size: .95rem; color: var(--ink-2); max-width: 40ch; }
+
+/* The glasses display: the one loud object on the page */
+.lens { background: var(--ink); border-radius: var(--lens); padding: clamp(14px, 2.6vw, 28px); box-shadow: 0 34px 60px -34px rgba(15, 27, 22, .6); }
+.display { container-type: inline-size; aspect-ratio: 2 / 1; background: var(--screen); border-radius: 6px; overflow: hidden; }
+.screen {
+  padding: 3cqw 3.4cqw;
+  font-family: "DotGothic16", "Courier New", ui-monospace, monospace;
+  font-size: 4.4cqw; line-height: 1.3;
+  color: var(--phosphor); text-shadow: 0 0 .55em rgba(107, 255, 138, .5);
+}
+@supports not (font-size: 1cqw) { .screen { font-size: clamp(9px, 1.9vw, 17px); padding: 14px 16px; } }
+.screen p { white-space: pre-wrap; min-height: 1.3em; overflow-wrap: anywhere; }
+.screen .rule { border-top: .14em dashed rgba(107, 255, 138, .7); margin: .4em 0; height: 0; min-height: 0; }
+.device { margin: 0; display: grid; gap: 16px; }
+.keys { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.key {
+  min-height: 46px; border-radius: 12px; border: 2px solid var(--ink); background: var(--panel); color: var(--ink);
+  font: inherit; font-weight: 600; font-size: .95rem; cursor: pointer;
+  transition: background .12s, color .12s, transform .12s;
+}
+.key:hover { background: #fff; }
+.key.on { background: var(--ink); color: var(--phosphor); transform: translateY(1px); }
+.caption { min-height: 3.2em; color: var(--ink-2); font-size: 1rem; line-height: 1.5; }
+.caption strong { color: var(--ink); }
+.restart { justify-self: start; background: none; border: 0; padding: 0; font: inherit; color: var(--signal); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+/* Sections */
+section { padding-top: clamp(56px, 8vw, 104px); }
+.head { display: grid; gap: 14px; margin-bottom: clamp(28px, 5vw, 52px); }
+
+/* How it works: a real sequence */
+.steps { list-style: none; counter-reset: step; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(36px, 6vw, 56px) clamp(28px, 4vw, 48px); }
+@media (min-width: 820px) { .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.steps li { counter-increment: step; display: grid; gap: 16px; align-content: start; }
+.steps .lens { padding: 12px; border-radius: 18px 16px 30px 34px; box-shadow: none; }
+.steps h3::before { content: counter(step); display: inline-grid; place-items: center; width: 1.7em; height: 1.7em; margin-right: .55em; border-radius: 50%; background: var(--ink); color: var(--phosphor); font-size: .85em; font-weight: 700; vertical-align: .08em; }
+.steps p { color: var(--ink-2); max-width: 46ch; }
+
+/* Meeting brief */
+.brief { display: grid; gap: 28px; align-items: center; margin-top: clamp(48px, 7vw, 84px); padding-top: clamp(32px, 5vw, 48px); border-top: 1px solid var(--line); }
+@media (min-width: 820px) { .brief { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; } }
+.brief .lens { padding: 12px; border-radius: 18px 16px 30px 34px; box-shadow: none; }
+.brief > div:first-child { display: grid; gap: 12px; }
+
+/* Features */
+.defs { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 820px) { .defs { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 56px; } }
+.defs div { border-top: 1px solid var(--line); padding: 22px 0 26px; display: grid; gap: 6px; align-content: start; }
+.defs dt { font-weight: 700; font-size: 1.2rem; letter-spacing: -0.01em; }
+.defs dd { margin: 0; color: var(--ink-2); max-width: 46ch; }
+
+/* Controls */
+.tablewrap { overflow-x: auto; border-top: 1px solid var(--line); }
+table { border-collapse: collapse; width: 100%; min-width: 560px; }
+caption { text-align: left; padding: 14px 0; color: var(--ink-2); }
+th, td { text-align: left; padding: 14px 16px 14px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+thead th { font-weight: 700; }
+tbody th { font-weight: 700; }
+td { color: var(--ink-2); }
+
+/* Safety */
+.safe { display: grid; gap: 28px; }
+@media (min-width: 900px) { .safe { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 64px; } }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.checks li { border-top: 1px solid var(--line); padding: 20px 0 22px 40px; position: relative; }
+.checks li::before { content: ""; position: absolute; left: 4px; top: 25px; width: 18px; height: 10px; border-left: 3px solid var(--signal); border-bottom: 3px solid var(--signal); transform: rotate(-45deg); }
+.checks b { display: block; font-size: 1.12rem; letter-spacing: -0.01em; margin-bottom: 2px; }
+.checks span { color: var(--ink-2); }
+
+/* Under the hood */
+.flow { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; align-items: stretch; }
+@media (min-width: 900px) { .flow { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr); } }
+.node { background: var(--panel); border: 2px solid var(--ink); border-radius: 18px 16px 28px 30px; padding: 18px 20px; display: grid; gap: 4px; align-content: center; }
+.node b { font-size: 1.1rem; }
+.node span { color: var(--ink-2); font-size: .98rem; line-height: 1.45; }
+.stack { display: grid; gap: 12px; }
+.hop { display: grid; place-items: center; gap: 2px; padding: 12px 18px; text-align: center; color: var(--ink-2); font-size: .9rem; line-height: 1.3; }
+.hop::before { content: "\2195"; font-size: 1.5rem; color: var(--ink); }
+@media (min-width: 900px) { .hop { max-width: 130px; } .hop::before { content: "\2194"; } }
+.facts { margin-top: 28px; }
+
+/* Next */
+.next { display: grid; gap: 10px; max-width: 62ch; padding-left: 1.2em; color: var(--ink-2); margin: 0; }
+.next b { color: var(--ink); }
+
+/* FAQ */
+.faq { border-top: 1px solid var(--line); max-width: 800px; }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary { cursor: pointer; list-style: none; padding: 20px 44px 20px 0; font-weight: 600; font-size: 1.12rem; position: relative; letter-spacing: -0.01em; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: ""; position: absolute; right: 6px; top: 50%; width: 12px; height: 12px; border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink); transform: translateY(-70%) rotate(45deg); transition: transform .2s; }
+.faq details[open] summary::after { transform: translateY(-30%) rotate(-135deg); }
+.faq details p { padding: 0 44px 22px 0; color: var(--ink-2); max-width: 62ch; }
+
+/* Footer */
+footer { margin-top: clamp(72px, 10vw, 128px); border-top: 1px solid var(--line); padding: 36px 0 56px; }
+.foot { display: grid; gap: 18px; color: var(--ink-2); font-size: .98rem; }
+.foot .brand { font-size: 1.2rem; }
+.foot .brand img { width: 30px; height: 30px; }
+.foot nav { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.foot nav a { color: var(--ink); }
+.foot small { font-size: .88rem; max-width: 70ch; line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+
+<header class="wrap top">
+  <a class="brand" href="#top" aria-label="Glance home"><img src="logo.svg" alt="" width="38" height="38">Glance</a>
+  <nav class="nav" aria-label="Main">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#safety">Safety</a>
+    <a href="#faq">FAQ</a>
+    <a class="btn primary" href="https://github.com/Hajrajadoon/glance-g2">GitHub</a>
+  </nav>
+</header>
+
+<main id="top">
+<div class="wrap hero">
+  <div class="hero-copy">
+    <h1>Inbox zero,<br>eyes up.</h1>
+    <p class="lede">Glance shows the few emails that need you, one per screen on your Even G2 glasses. The reply is already written. Tap to send, or say what to change.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/Hajrajadoon/glance-g2">View the code</a>
+      <a class="btn" href="#how">See how it works</a>
+    </div>
+    <p class="fine">Built for the Heads Up hackathon, AI Assistants and Work track. Runs in the free Even Hub simulator.</p>
+  </div>
+
+  <figure class="device" aria-label="A working copy of the Glance screens on the glasses display">
+    <div class="lens">
+      <div class="display"><div class="screen" id="screen">
+        <p>1/2  Sara Khan</p><div class="rule"></div><p>Can we move Thursday's design</p><p>review?</p><p></p><p>TAP reply SWIPE next 2xTAP brief</p>
+      </div></div>
+    </div>
+    <div class="keys" role="group" aria-label="Glasses touchpad">
+      <button class="key" data-key="up" type="button">Up</button>
+      <button class="key" data-key="down" type="button">Down</button>
+      <button class="key" data-key="click" type="button">Click</button>
+      <button class="key" data-key="dbl" type="button">Double click</button>
+    </div>
+    <p class="caption" id="caption" role="status">Press the buttons to try it. They work like the touchpad on the glasses.</p>
+    <button class="restart" id="restart" type="button" hidden>Start over</button>
+  </figure>
+</div>
+
+<section id="how" class="wrap">
+  <div class="head">
+    <h2>Email pulls you out of the moment. Glance puts it back in your glance.</h2>
+    <p class="prose">You are walking to a meeting. Today you either ignore your inbox or take out your phone, scroll past newsletters and type with your thumbs. With Glance, four steps take about thirty seconds.</p>
+  </div>
+  <ol class="steps">
+    <li>
+      <div class="lens"><div class="display"><div class="screen">
+        <p>Link Gmail</p><div class="rule"></div><p>On your PC open:</p><p>localhost:8787/link</p><p>Code: 420548</p><p></p><p>TAP = use demo inbox</p>
+      </div></div></div>
+      <h3>Link your Gmail</h3>
+      <p>The glasses show a six-digit code. Type it on a normal web page and sign in with Google there. Google blocks its sign-in inside the glasses app, so this is the way around it.</p>
+    </li>
+    <li>
+      <div class="lens"><div class="display"><div class="screen">
+        <p>1/3  Ali Raza</p><div class="rule"></div><p>Need approval for invoice #2041</p><p>of 1,200 USD today.</p><p></p><p>TAP reply SWIPE next 2xTAP brief</p>
+      </div></div></div>
+      <h3>See only what needs you</h3>
+      <p>AI reads your unread Primary mail and keeps at most five that need a person. Newsletters, promotions and alerts never appear.</p>
+    </li>
+    <li>
+      <div class="lens"><div class="display"><div class="screen">
+        <p>Listening...</p><div class="rule"></div><p>Say: shorter, say no politely,</p><p>send it</p><p></p><p>SWIPE to stop</p>
+      </div></div></div>
+      <h3>Change the reply in a phrase</h3>
+      <p>Every card comes with a draft written from the email. Say "shorter" or "say no politely" and it is rewritten in seconds. No long dictation.</p>
+    </li>
+    <li>
+      <div class="lens"><div class="display"><div class="screen">
+        <p>Send this reply?</p><div class="rule"></div><p>Approved. Please go ahead and</p><p>send me the confirmation.</p><p></p><p>TAP yes  2xTAP no</p>
+      </div></div></div>
+      <h3>Click to send</h3>
+      <p>Open the draft, confirm, send. Nothing leaves your inbox without that last click.</p>
+    </li>
+  </ol>
+
+  <div class="brief">
+    <div>
+      <h3>Before a meeting, one double click</h3>
+      <p class="prose">Double click on any card shows who you are meeting, the last email thread with them and one question to ask. It uses demo meeting data until you turn on Google Calendar.</p>
+    </div>
+    <div class="lens"><div class="display"><div class="screen">
+      <p>Design review in 10m</p><div class="rule"></div><p>With: Sara, Ali</p><p>Sara: move Thursday review?</p><p>Ask: is Friday 10am confirmed?</p><p></p><p>TAP back</p>
+    </div></div></div>
+  </div>
+</section>
+
+<section id="features" class="wrap">
+  <div class="head"><h2>What it does</h2></div>
+  <dl class="defs">
+    <div><dt>Triage</dt><dd>At most five cards. Skips newsletters, promotions, social updates and alerts.</dd></div>
+    <div><dt>AI drafts</dt><dd>Written from the email itself, under 35 words, in the first person.</dd></div>
+    <div><dt>Voice edits</dt><dd>Press Down on a draft, say what to change, press again. Or type the same command on the app page.</dd></div>
+    <div><dt>Meeting brief</dt><dd>Who is in the room, the last thread with them and a question to ask.</dd></div>
+    <div><dt>Demo mode</dt><dd>No keys and no login needed. Click on the link screen to use a built-in inbox. Nothing is sent in demo mode.</dd></div>
+    <div><dt>Always an answer</dt><dd>If the AI is down or answers badly, simple built-in rules write the draft instead.</dd></div>
+  </dl>
+
+  <div class="tablewrap" style="margin-top: 48px;">
+    <table>
+      <caption>What each input does</caption>
+      <thead><tr><th>Screen</th><th>Click</th><th>Double click</th><th>Up and Down</th></tr></thead>
+      <tbody>
+        <tr><th>Card</th><td>Open the draft</td><td>Meeting brief</td><td>Previous and next card</td></tr>
+        <tr><th>Draft</th><td>Go to confirm</td><td>Back</td><td>Up: shorter. Down: speak a command</td></tr>
+        <tr><th>Confirm</th><td>Send</td><td>Back</td><td>None</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="safety" class="wrap">
+  <div class="safe">
+    <div class="head">
+      <h2>Careful with your inbox</h2>
+      <p class="prose">Glance asks Google for two permissions only: read mail and send mail. It cannot delete, archive or change anything else.</p>
+    </div>
+    <ul class="checks">
+      <li><b>No send without a click</b><span>Voice can open the confirm screen. Only a click on the glasses sends.</span></li>
+      <li><b>The glasses never choose who gets the reply</b><span>The server takes the address from the stored email. No-reply addresses are refused, and each reply can be sent only once.</span></li>
+      <li><b>No invented details</b><span>If a draft adds a name or number that is not in the email, or ignores what you asked, it is thrown away and replaced by a safe reply.</span></li>
+      <li><b>Emails are treated as untrusted text</b><span>Instructions hidden inside an email are ignored by the AI.</span></li>
+      <li><b>Nothing is stored</b><span>Emails are never written to disk. Sign-in tokens live in server memory. API keys stay on the server and never ship inside the app.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section id="tech" class="wrap">
+  <div class="head">
+    <h2>Under the hood</h2>
+    <p class="prose">A small pipeline with one job per part. All Even Hub SDK calls live in a single file, and everything else is plain TypeScript with 39 automated tests.</p>
+  </div>
+  <div class="flow">
+    <div class="node"><b>Glasses app</b><span>TypeScript web app in the Even Hub WebView. Draws screens, reads taps and the microphone.</span></div>
+    <div class="hop">text, taps and voice</div>
+    <div class="node"><b>Glance backend</b><span>Node and Express. Holds the keys and sessions, and checks every AI answer.</span></div>
+    <div class="hop">mail and prompts</div>
+    <div class="stack">
+      <div class="node"><b>Gmail API</b><span>Reads unread mail, sends replies.</span></div>
+      <div class="node"><b>Groq AI</b><span>Triage, drafts, meeting brief and Whisper speech to text.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="next" class="wrap">
+  <div class="head"><h2>What comes next</h2></div>
+  <ul class="next">
+    <li><b>Test on physical G2 glasses.</b> Glance is tested in the simulator so far.</li>
+    <li><b>A hosted backend,</b> so the packaged app works away from a laptop.</li>
+    <li><b>Voice actions beyond email:</b> move a meeting, add a task.</li>
+    <li><b>More inboxes,</b> such as Outlook.</li>
+  </ul>
+</section>
+
+<section id="faq" class="wrap">
+  <div class="head"><h2>Questions</h2></div>
+  <div class="faq">
+    <details name="faq"><summary>Do I need Even G2 glasses to try it?</summary><p>No. Glance runs in the free Even Hub simulator, and the demo above shows the same screens. It has not been tested on physical glasses yet.</p></details>
+    <details name="faq"><summary>Does Glance send emails by itself?</summary><p>No. Every reply needs your final click. In demo mode nothing is sent at all.</p></details>
+    <details name="faq"><summary>Is my email stored anywhere?</summary><p>No. Glance reads your unread mail when it starts, keeps it in memory while the server runs and never writes it to disk. Sign-in tokens are also held in memory only.</p></details>
+    <details name="faq"><summary>Which AI writes the drafts?</summary><p>Groq-hosted models by default, which have a free tier. If you add an Anthropic key, Claude writes them instead. Whisper turns your speech into text.</p></details>
+    <details name="faq"><summary>Why a code instead of "Sign in with Google" on the glasses?</summary><p>Google blocks its sign-in inside embedded web views like the one the glasses app runs in. You finish signing in on a normal web page with the code the glasses show.</p></details>
+    <details name="faq"><summary>Why are my Promotions and Spam emails missing?</summary><p>On purpose. Glance only looks at unread mail in your Primary tab, because marketing mail does not need a reply.</p></details>
+    <details name="faq"><summary>Can I use it in another language?</summary><p>Speech recognition is set to English for now.</p></details>
+    <details name="faq"><summary>What does it cost to run?</summary><p>It is built to run on free tiers: Groq's free plan and Google's test mode. No paid service is required.</p></details>
+    <details name="faq"><summary>Who made it?</summary><p>Hajrajadoon, for the Heads Up hackathon (Nov 23 to 29, 2026) by Even Realities, TVM Ventures and Daos Hub.</p></details>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="#top"><img src="logo.svg" alt="" width="30" height="30">Glance</a>
+    <nav aria-label="Footer">
+      <a href="https://github.com/Hajrajadoon/glance-g2">Source code</a>
+      <a href="https://github.com/Hajrajadoon/glance-g2#run-it">Run it yourself</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <small>Glance is an independent project. It is not affiliated with or endorsed by Google, Even Realities or Groq.</small>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const RULE = "\u0000rule";
+  const el = (id) => document.getElementById(id);
+  const screenEl = el("screen"), captionEl = el("caption"), restartEl = el("restart");
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const CARDS = [
+    { id: "sara", who: "Sara Khan", gist: ["Can we move Thursday's design", "review?"],
+      draft: "Sure, Friday 10am works for me. I'll update the invite. Thanks!",
+      short: "Sure, Friday 10am works for me.", no: "Thanks for asking, but that won't work for me this time." },
+    { id: "ali", who: "Ali Raza", gist: ["Need approval for invoice #2041", "of 1,200 USD today."],
+      draft: "Approved. Please go ahead and send me the confirmation.",
+      short: "Approved. Please send the confirmation.", no: "I can't approve this one yet. Please hold it for now." }
+  ];
+  const COMMANDS = ["shorter", "say no politely"];
+
+  const wrap = (t, n = 34) => {
+    const out = []; let line = "";
+    for (const w of t.split(/\s+/).filter(Boolean)) {
+      if (!line) line = w;
+      else if ((line + " " + w).length <= n) line += " " + w;
+      else { out.push(line); line = w; }
+    }
+    if (line) out.push(line);
+    return out;
+  };
+
+  let S;
+  const fresh = () => { S = { screen: "card", i: 0, sent: [], drafts: {}, voice: 0, busy: false }; };
+  fresh();
+  const left = () => CARDS.filter((c) => !S.sent.includes(c.id));
+  const card = () => left()[S.i];
+  const draftOf = (c) => S.drafts[c.id] ?? c.draft;
+
+  function lines() {
+    const l = left(), c = card();
+    switch (S.screen) {
+      case "card":
+        return [`${S.i + 1}/${l.length}  ${c.who}`, RULE, ...c.gist, "", "TAP reply SWIPE next 2xTAP brief"];
+      case "draft":
+        return [`Reply to ${c.who}`, RULE, ...wrap(draftOf(c)).slice(0, 4), "", "TAP send  SWIPE speak"];
+      case "confirm":
+        return ["Send this reply?", RULE, ...wrap(draftOf(c)).slice(0, 3), "", "TAP yes  2xTAP no"];
+      case "sent":
+        return ["Sent  [OK]", RULE, l.length ? `${l.length} more to go` : "All done!", "", "TAP continue"];
+      case "empty":
+        return ["Inbox zero", RULE, "Nothing needs you.", "Enjoy the walk.", "", "2xTAP next meeting"];
+      case "brief":
+        return ["Design review in 10m", RULE, "With: Sara, Ali", "Sara: move Thursday review?", "Ask: is Friday 10am confirmed?", "", "TAP back"];
+      case "listening":
+        return ["Listening...", RULE, "Say: shorter, say no politely,", "send it", "", "SWIPE to stop"];
+      case "heard":
+        return [`Heard: "${S.heard}"`.slice(0, 34), RULE, "Rewriting..."];
+    }
+    return [];
+  }
+
+  function paint() {
+    screenEl.replaceChildren(...lines().map((t) => {
+      if (t === RULE) { const d = document.createElement("div"); d.className = "rule"; return d; }
+      const p = document.createElement("p"); p.textContent = t; return p;
+    }));
+  }
+
+  const say = (html) => { captionEl.innerHTML = html; };
+  const flash = (k) => {
+    const b = document.querySelector(`.key[data-key="${k}"]`);
+    if (!b) return;
+    b.classList.add("on");
+    setTimeout(() => b.classList.remove("on"), 320);
+  };
+  const after = () => (left().length ? "card" : "empty");
+
+  async function press(k) {
+    if (S.busy) return;
+    flash(k);
+    const c = card();
+    const sc = S.screen;
+    if (sc === "brief") { S.screen = after(); }
+    else if (sc === "empty") { if (k === "dbl") S.screen = "brief"; else if (k === "click") { fresh(); } }
+    else if (sc === "sent") { S.screen = after(); if (S.i >= left().length) S.i = 0; }
+    else if (sc === "card") {
+      const n = left().length;
+      if (k === "click") S.screen = "draft";
+      else if (k === "down") S.i = (S.i + 1) % n;
+      else if (k === "up") S.i = (S.i - 1 + n) % n;
+      else if (k === "dbl") S.screen = "brief";
+    } else if (sc === "draft") {
+      if (k === "click") S.screen = "confirm";
+      else if (k === "dbl") S.screen = "card";
+      else if (k === "down" || k === "up") {
+        S.busy = true;
+        const cmd = k === "up" ? COMMANDS[0] : COMMANDS[S.voice++ % COMMANDS.length];
+        if (k === "down") { S.screen = "listening"; paint(); await sleep(reduce ? 400 : 900); }
+        S.heard = cmd; S.screen = "heard"; paint(); await sleep(reduce ? 300 : 650);
+        S.drafts[c.id] = cmd === "shorter" ? c.short : c.no;
+        S.screen = "draft"; S.busy = false;
+      }
+    } else if (sc === "confirm") {
+      if (k === "click") { S.sent.push(c.id); S.screen = "sent"; }
+      else if (k === "dbl") S.screen = "draft";
+    }
+    paint();
+    restartEl.hidden = S.screen !== "empty";
+  }
+
+  const HELP = {
+    card: "<strong>A card.</strong> Who it is from and what they want. Click opens the reply.",
+    draft: "<strong>The reply is already written.</strong> Click to review it, or press Down and say what to change.",
+    confirm: "<strong>One last check.</strong> Click sends it. Double click goes back.",
+    sent: "<strong>Sent.</strong> Click for the next email.",
+    empty: "<strong>Inbox zero.</strong> Double click shows your next meeting, or start over.",
+    brief: "<strong>Meeting brief.</strong> Who is in it, the last thread and a question to ask.",
+  };
+  const note = () => { if (HELP[S.screen]) say(HELP[S.screen]); };
+
+  // A short tour that plays once, until the visitor takes over.
+  let auto = !reduce;
+  const SCRIPT = [
+    ["click", 2400, "<strong>Click</strong> opens the reply, already written."],
+    ["down", 2600, "<strong>Down</strong>, then say \"shorter\". It is rewritten in seconds."],
+    ["click", 2800, "<strong>Click</strong> to review it before it goes."],
+    ["click", 2400, "<strong>Click</strong> again sends it. Nothing leaves without this."],
+    ["click", 2000, "Next email."],
+    ["dbl", 2400, "<strong>Double click</strong> shows your next meeting."],
+    ["click", 2600, "Back to the inbox."],
+  ];
+  async function tour() {
+    await sleep(2200);
+    for (const [k, wait, text] of SCRIPT) {
+      if (!auto) return;
+      say(text);
+      await sleep(wait * 0.55);
+      if (!auto) return;
+      await press(k);
+      await sleep(wait * 0.45);
+    }
+    if (auto) { fresh(); paint(); say("Press the buttons to try it. They work like the touchpad on the glasses."); }
+  }
+
+  const takeOver = () => { if (auto) { auto = false; } };
+  document.querySelectorAll(".key").forEach((b) => b.addEventListener("click", async () => {
+    takeOver();
+    await sleep(0);
+    await press(b.dataset.key);
+    note();
+  }));
+  restartEl.addEventListener("click", () => { takeOver(); fresh(); paint(); restartEl.hidden = true; say("Press the buttons to try it."); });
+
+  paint();
+  if (auto) tour();
+})();
+</script>
+</body>
+</html>

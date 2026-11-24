@@ -1,0 +1,25 @@
+{
+  "name": "glance",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 5173",
+    "build": "vite build",
+    "sim": "evenhub-simulator http://localhost:5173",
+    "server": "node --env-file-if-exists=.env --experimental-strip-types server/index.ts",
+    "test": "node --experimental-strip-types --test src/state.test.ts server/lib.test.ts server/providers.test.ts server/google.test.ts",
+    "typecheck": "tsc --noEmit",
+    "pack": "evenhub pack app.json dist -o glance.ehpk"
+  },
+  "dependencies": {
+    "@evenrealities/even_hub_sdk": "latest",
+    "@anthropic-ai/sdk": "latest",
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  }
+}

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Glance logo">
+  <title>Glance</title>
+  <path d="M6 22C6 15 11 10 18 10H48C55 10 59 15 59 21V37C59 48 52 55 42 55H20C11 55 6 49 6 41Z" fill="#0F1B16"/>
+  <rect x="17" y="21" width="26" height="4.5" rx="2.25" fill="#6BFF8A"/>
+  <rect x="17" y="30" width="19" height="4.5" rx="2.25" fill="#6BFF8A" opacity=".85"/>
+  <rect x="17" y="39" width="11" height="4.5" rx="2.25" fill="#6BFF8A" opacity=".7"/>
+  <circle cx="49" cy="23.5" r="3.4" fill="#6BFF8A"/>
+</svg>

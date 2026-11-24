@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glance</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 16px; max-width: 520px; }
+      #cmd { width: 70%; padding: 8px; font-size: 16px; }
+      #go { padding: 8px 14px; font-size: 16px; }
+      #status { color: #555; margin-top: 10px; }
+      small { color: #777; }
+    </style>
+  </head>
+  <body>
+    <h3>Glance</h3>
+    <p>Look at the glasses (or the simulator window).</p>
+    <p>
+      <input id="cmd" placeholder="Type a command, e.g. shorter" />
+      <button id="go">Do it</button>
+    </p>
+    <small>Works while a draft is open: "shorter", "say no politely", "send it", "skip".</small>
+    <div id="status">Starting...</div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
